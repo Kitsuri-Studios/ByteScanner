@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  linux:
+    name: linux / ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: gcc-debug, cxx: g++, build_type: Debug, werror: OFF, sanitize: OFF }
+          - { name: gcc-release, cxx: g++, build_type: Release, werror: OFF, sanitize: OFF }
+          - { name: gcc-werror, cxx: g++, build_type: Debug, werror: ON, sanitize: OFF }
+          - { name: gcc-sanitize, cxx: g++, build_type: Debug, werror: OFF, sanitize: ON }
+          - { name: clang-debug, cxx: clang++, build_type: Debug, werror: OFF, sanitize: OFF }
+          - { name: clang-release, cxx: clang++, build_type: Release, werror: OFF, sanitize: OFF }
+          - { name: clang-werror, cxx: clang++, build_type: Debug, werror: ON, sanitize: OFF }
+    env:
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DBSCAN_WERROR=${{ matrix.werror }}
+          -DBSCAN_SANITIZE=${{ matrix.sanitize }}
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  windows:
+    name: windows / ${{ matrix.name }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: msvc-debug, build_type: Debug }
+          - { name: msvc-release, build_type: Release }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}
