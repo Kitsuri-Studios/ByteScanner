@@ -1,0 +1,50 @@
+README for bytescanner
+
+bytescanner is a multi-arch byte scanner and pattern maker for pe elf and raw
+files on disk it grows unique ida or x64dbg signatures from offsets you already
+know and can try to find those same spots on a later build of the same binary
+that later step is a best effort hunt not a guarantee
+
+it reads the files you pass it it does not attach to processes
+
+The commands are as follows:
+
+	gen			-- make unique byte signatures from the offsets you already know
+	find			-- look those signatures up in a newer binary and write the new offsets
+
+Run it like this:
+
+	bytescanner gen --bin old.so --csv names.csv --out sigs.csv
+	bytescanner find --bin new.so --csv sigs.csv --out names_new.csv
+	bytescanner --bin old.so --new new.so --csv names.csv --out names_new.csv
+
+The flags are as follows:
+
+	--bin, -b PATH		-- this is the file you scan on gen it is the old binary and on find it is the new one
+	--new PATH		-- path to a newer binary so gen can make signatures then find them in that file in one go
+	--old PATH		-- path to the old binary on find so fingerprints have something to compare against
+	--csv, -c PATH		-- csv of names and addresses and maybe signatures you already have
+	--offsets, -s LIST	-- comma list of hex offsets when you do not have a csv
+	--out, -o PATH		-- write the name and address csv here or print it to stdout if you skip this
+	--json PATH		-- write extra details to this json file or next to the csv with a json ending
+	--format FMT		-- how the signature text looks pick ida or x64dbg
+	--arch ARCH		-- force the cpu kind or leave auto so the file header picks it
+	--min-len N		-- do not let a signature be shorter than this many bytes
+	--max-len N		-- stop growing a signature after this many bytes
+	--scope exec|all	-- search only code sections or the whole mapped file
+	--all			-- if more than one place matches keep the first hit anyway
+	--resolve-conflicts	-- when hits clash compare instruction shape to the old binary and pick one
+	--fuzz			-- extra guessy hunt that chops the signature shorter and ranks by fingerprint overlap off unless you pass it
+	--mem SIZE		-- how much ram the scan index may use default is 1G you can pass 512M or 50 percent
+	--color WHEN		-- color on a tty with auto or force it with always or turn it off with never
+	--quiet			-- do not print progress on stderr
+	--help, -h		-- print this help
+
+CONTRIBUTORS
+
+feel free to send a pull request or contact us at studio@kitsuri.dev or kitsuri.dev/discord
+
+ATTRIBUTION
+
+Ghidra/UniAsm for binary similarity searching
+Kitsuri Studios for ada and the rest of the implementation
