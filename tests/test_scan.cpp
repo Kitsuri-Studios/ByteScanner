@@ -49,7 +49,8 @@ TEST(Scan, CountTwo) {
 	data[206] = 0x33;
 	data[207] = 0xF6;
 	Pattern p = parsePattern("E8 ? ? ? ? 45 33 F6");
-	Scanner sc(Binary::loadBytes(data, Arch::X64), true);
+	Binary bin = Binary::loadBytes(data, Arch::X64);
+	Scanner sc(bin, true);
 	CHECK_EQ(sc.count(p, 4), size_t{2});
 	CHECK_EQ(sc.count(p, 1), size_t{1});
 	std::vector<size_t> rel;
@@ -62,7 +63,8 @@ TEST(Scan, CountTwo) {
 TEST(Scan, IndexMiss) {
 	auto data = callHay();
 	Pattern p = parsePattern("CC DD EE FF");
-	Scanner sc(Binary::loadBytes(data, Arch::X64), true);
+	Binary bin = Binary::loadBytes(data, Arch::X64);
+	Scanner sc(bin, true);
 	CHECK(sc.hasIndex());
 	CHECK_EQ(sc.count(p, 4), size_t{0});
 	CHECK(sc.find(p, 4).empty());

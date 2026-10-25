@@ -26,7 +26,6 @@ constexpr int64_t DT_RELSZ = 18;
 constexpr int64_t DT_RELENT = 19;
 constexpr int64_t DT_RELR = 36;
 constexpr int64_t DT_RELRSZ = 35;
-constexpr int64_t DT_RELRENT = 37;
 
 Arch elfMachine(uint16_t em, uint8_t cls) {
 	switch (em) {
