@@ -54,6 +54,22 @@ TEST(Csv, HintColumns) {
 	CHECK(rowHasHints(h.rows[0]));
 }
 
+TEST(Csv, ResultsKeepSignature) {
+	WorkResult a;
+	a.row.name = "main";
+	a.row.hasAddress = true;
+	a.row.address = 0x1060;
+	a.row.signature = "48 83 EC 38 B9 05 00 00 00";
+	a.status = "unique";
+	auto csv = formatResults({a});
+	CHECK_EQ(csv.find("Name,Address,Signature"), size_t{0});
+	CHECK(csv.find("48 83 EC 38 B9 05 00 00 00") != std::string::npos);
+	auto back = parseCsv(csv);
+	REQUIRE_EQ(back.rows.size(), size_t{1});
+	CHECK_EQ(back.rows[0].signature, a.row.signature);
+	CHECK_EQ(back.rows[0].address, a.row.address);
+}
+
 TEST(Csv, ResultsAndSummary) {
 	WorkResult grp;
 	grp.row.name = "Functions";

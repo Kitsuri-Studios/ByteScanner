@@ -1,5 +1,6 @@
 #include "bytescanner/csv.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <sstream>
 
@@ -279,8 +280,13 @@ std::string formatCsv(const std::vector<SymbolRow>& rows, bool withSig, bool wit
 }
 
 std::string formatResults(const std::vector<WorkResult>& results) {
+	const bool hasSignature = std::any_of(results.begin(), results.end(),
+		[](const WorkResult& r) { return !r.row.signature.empty(); });
 	std::ostringstream os;
-	os << "Name,Address\n";
+	os << "Name,Address";
+	if (hasSignature)
+		os << ",Signature";
+	os << "\n";
 	for (const WorkResult& r : results) {
 		const SymbolRow& row = r.row;
 		if (r.status == "group" || (!row.hasAddress && row.signature.empty() && row.name == row.group)) {
@@ -290,6 +296,8 @@ std::string formatResults(const std::vector<WorkResult>& results) {
 		os << quote(row.name) << ",";
 		if (row.hasAddress)
 			os << formatHex(row.address);
+		if (hasSignature)
+			os << "," << quote(row.signature);
 		os << "\n";
 	}
 	return os.str();

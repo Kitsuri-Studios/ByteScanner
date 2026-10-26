@@ -88,4 +88,5 @@ TEST(Cli, Flags) {
 	Options col = parseArgs({"bytescanner", "gen", "-b", "a.so", "-s", "0x1", "--color", "never"});
 	CHECK(col.color == ColorMode::Never);
 	CHECK_THROWS(parseArgs({"bytescanner", "nope"}));
+	CHECK_THROWS(parseArgs({"bytescanner", "gen", "-b", "a.so", "-s", "0x1", "--min-len", "32", "--max-len", "16"}));
 }

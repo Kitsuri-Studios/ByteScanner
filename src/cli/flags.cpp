@@ -167,6 +167,8 @@ Options parseArgs(const std::vector<std::string>& args) {
 		else
 			throw ScanError("unknown flag " + a);
 	}
+	if (opt.gen.maxLen && opt.gen.minLen > opt.gen.maxLen)
+		throw ScanError("min-len above max-len");
 	return opt;
 }
 
